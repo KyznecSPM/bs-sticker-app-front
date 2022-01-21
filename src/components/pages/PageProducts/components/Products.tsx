@@ -1,26 +1,26 @@
-import React, {useEffect, useState} from 'react';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import {makeStyles} from '@material-ui/core/styles';
-import {Product} from "models/Product";
-import {formatAsPrice} from "utils/utils";
+import React, { useCallback, useEffect, useState } from "react";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import CardMedia from "@material-ui/core/CardMedia";
+import Grid from "@material-ui/core/Grid";
+import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@material-ui/core/styles";
+import { Product } from "models/Product";
+import { formatAsPrice } from "utils/utils";
 import AddProductToCart from "components/AddProductToCart/AddProductToCart";
-// import axios from 'axios';
+import axios from "axios";
 // import API_PATHS from "constants/apiPaths";
-import productList from "./productList.json";
 
 const useStyles = makeStyles((theme) => ({
   card: {
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
   },
   cardMedia: {
-    paddingTop: '56.25%', // 16:9
+    paddingTop: "56.25%", // 16:9
+    backgroundSize: "contain",
   },
   cardContent: {
     flexGrow: 1,
@@ -35,11 +35,20 @@ export default function Products() {
   const classes = useStyles();
   const [products, setProducts] = useState<Product[]>([]);
 
+  const getProducts = useCallback(() => {
+    axios
+      .get(
+        "https://ubfn6dxyzk.execute-api.eu-west-1.amazonaws.com/dev/products"
+      )
+      .then((res) => setProducts(res.data));
+  }, []);
+
   useEffect(() => {
     // axios.get(`${API_PATHS.bff}/product/available/`)
     //   .then(res => setProducts(res.data));
-    setProducts(productList);
-  }, [])
+    // setProducts(productList);
+    getProducts();
+  }, [getProducts]);
 
   return (
     <Grid container spacing={4}>
@@ -48,19 +57,17 @@ export default function Products() {
           <Card className={classes.card}>
             <CardMedia
               className={classes.cardMedia}
-              image={`https://source.unsplash.com/random?sig=${index}`}
+              image={`assets/${product.assetName}`}
               title="Image title"
             />
             <CardContent className={classes.cardContent}>
               <Typography gutterBottom variant="h5" component="h2">
                 {product.title}
               </Typography>
-              <Typography>
-                {formatAsPrice(product.price)}
-              </Typography>
+              <Typography>{formatAsPrice(product.price)}</Typography>
             </CardContent>
             <CardActions>
-              <AddProductToCart product={product}/>
+              <AddProductToCart product={product} />
             </CardActions>
           </Card>
         </Grid>
